@@ -52,6 +52,16 @@ export class AppComponent {
     this.dxf.addLayer('r3000', Colors.Green, 'Continuous');
   }
 
+  createFootplateBlock(name:string){
+    const footplate = this.dxf.addBlock(name)
+   
+    footplate.addArc(point3d(5,5,0),5,180,270);
+    footplate.addArc(point3d(5,58,0),5,90,180);
+    footplate.addArc(point3d(125,5,0),5,270,0);
+    footplate.addArc(point3d(125,58,0),5,0,90);
+    
+  }
+
   createFieldBlock(width: number, depth: number, name: string) {
     const field = this.dxf.addBlock(name);
     const vertices = [
@@ -130,11 +140,13 @@ export class AppComponent {
     this.createFieldBlock(this.frameWidth, this.fieldDepth, 'Rahmen');
     this.createRowBlock(this.amountFields, 'row');
     this.createSystemBlock(this.amountRows, this.aisleWidth, 'system');
+    this.createFootplateBlock('footplate');
 
     this.dxf.addInsert('system', point3d(0, 0, 0), {
       rotationAngle: this.rotationAngle,
       layerName: 'r3000',
     });
+    this.dxf.addInsert('footplate', point3d(0, 0, 0))
 
     this.dxfString = this.dxf.stringify();
   }
