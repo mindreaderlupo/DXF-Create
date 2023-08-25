@@ -1,0 +1,7 @@
+p {
+  font-family: Lato;
+}
+.flex{
+  display: flex;
+  align-items: center;
+}

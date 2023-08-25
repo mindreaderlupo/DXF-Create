@@ -1,0 +1,44 @@
+<div class="main-container">
+  <header class="header-6">
+    <div class="branding">
+      <a style="display:flex; align-items:center">
+        <span class="title">DXF Creation</span>
+      </a>
+    </div>
+		<div class="header-nav">
+      <button (click)="initializeDxf()" class="active nav-link nav-text">Init</button>
+    </div>
+    <div class="header-nav">
+      <button (click)="generateDXF()" class="active nav-link nav-text">Generate DXF</button>
+    </div>
+		<div class="header-nav">
+      <button (click)="downloadDXF()" class="active nav-link nav-text">Download</button>
+    </div>
+  </header>
+  <div class="content-container">
+    <div class="content-area">
+			<table>
+				<tr>
+					<td>Feldweite</td>
+					<td> <input [(ngModel)]="fieldWidth"></td>
+				</tr>
+				<tr>
+					<td>Feld Tiefe</td>
+					<td> <input [(ngModel)]="fieldDepth"></td>
+				</tr>
+				<tr>
+					<td>Anzahl Felder</td>
+					<td> <input [(ngModel)]="amountFields"></td>
+				</tr>
+				<tr>
+					<td>Anzahl Zeilen</td>
+					<td> <input [(ngModel)]="amountRows"></td>
+				</tr>
+				<tr>
+					<td>Drehung</td>
+					<td> <input [(ngModel)]="rotationAngle"></td>
+				</tr>
+			</table>
+		</div>
+  </div>
+</div>
