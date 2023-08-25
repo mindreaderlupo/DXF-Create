@@ -5,15 +5,14 @@
         <span class="title">DXF Creation</span>
       </a>
     </div>
+		
 		<div class="header-nav">
-      <button (click)="initializeDxf()" class="active nav-link nav-text">Init</button>
-    </div>
-    <div class="header-nav">
-      <button (click)="generateDXF()" class="active nav-link nav-text">Generate DXF</button>
+      <button (click)="runAndDownload()" class="active nav-link nav-text">Download</button>
     </div>
 		<div class="header-nav">
-      <button (click)="downloadDXF()" class="active nav-link nav-text">Download</button>
+      <button (click)="debug()" class="active nav-link nav-text">Debug</button>
     </div>
+
   </header>
   <div class="content-container">
     <div class="content-area">
@@ -35,12 +34,20 @@
 					<td> <input [(ngModel)]="amountRows"></td>
 				</tr>
 				<tr>
+					<td>Gangbreite</td>
+					<td> <input [(ngModel)]="aisleWidth"></td>
+				</tr>
+				<tr>
+					<td>Doppelzeilenabstand</td>
+					<td> <input [(ngModel)]="rowDistance"></td>
+				</tr>
+				<tr>
 					<td>Drehung</td>
 					<td> <input [(ngModel)]="rotationAngle"></td>
 				</tr>
 				<tr>
 					<td>EZ/DZ</td>
-					<td> <input [(ngModel)]="rowPattern"> (sdds)(ddd)(sss)(sdd)(dds)</td>
+					<td> <input [(ngModel)]="rowPattern" disabled></td>
 				</tr>
 			</table>
 		</div>

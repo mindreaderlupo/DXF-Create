@@ -19,7 +19,7 @@ import {
 })
 export class AppComponent {
   dxfString = '';
-  dxf = new DxfWriter();
+  dxf:DxfWriter;
 
   fieldWidth: number = 994;
   fieldDepth: number = 400;
@@ -28,11 +28,27 @@ export class AppComponent {
   rotationAngle: number = 0;
   frameWidth: number = 31;
   aisleWidth: number = 1000;
-  rowPattern: string = 'sdd';
+  rowPattern: string = 'sdds';
+  rowDistance: number = 6;
+
+ 
+
+  debug(){
+    this.initializeDxf();
+    this.generateDXF();
+  }
+
+  runAndDownload(){
+    this.initializeDxf();
+    this.generateDXF();
+    this.downloadDXF();
+  }
 
   initializeDxf() {
+    this.dxfString = '';
+    this.dxf = new DxfWriter();
     this.dxf.setUnits(Units.Millimeters);
-    this.dxf.tables.addAppId('PE Configurator');
+    //this.dxf.tables.addAppId('PE Configurator');
     this.dxf.addLayer('r3000', Colors.Green, 'Continuous');
   }
 
@@ -79,45 +95,37 @@ export class AppComponent {
   createSystemBlock(amountRows: number, aisleWidth: number, name: string) {
     const system = this.dxf.addBlock(name);
     let pattern = [];
-    for (let i = 0; i < amountRows; i++) {
-      if (this.rowPattern == 'sdds') {
-        if (i == 0 || (i == amountRows - 1 && amountRows % 2 == 0)) {
-          pattern.push('s');
-        } else {
-          pattern.push('d');
-        }
-      }
-    }
-    console.log(pattern);
+    let doubleRowCount = 1;
     let yMeasure = 0;
     for (let i = 0; i < amountRows; i++) {
       system.addInsert('row', point3d(0, yMeasure, 0));
       yMeasure = yMeasure + this.fieldDepth;
-      if (this.rowPattern == 's') {
-        yMeasure = yMeasure + this.aisleWidth;
-      }
-      if (this.rowPattern[i] == 'd') {
-        yMeasure = yMeasure + 6;
-        system.addInsert('row', point3d(0, yMeasure, 0));
-        yMeasure = yMeasure + this.fieldDepth;
+      if (this.rowPattern == 'sdds') {
+        if (i == 0 || (i == amountRows - 1 && amountRows % 2 == 0)) {
+          pattern.push('single');
+          pattern.push('aisle');
+          yMeasure = yMeasure + this.aisleWidth;
+        } else {
+          if(doubleRowCount==1){
+            pattern.push('doubleR');
+            pattern.push('distance');
+            yMeasure = yMeasure + this.rowDistance;
+            doubleRowCount++
+          } else {
+            pattern.push('doubleL');
+            pattern.push('aisle');
+            yMeasure = yMeasure + this.aisleWidth;
+            doubleRowCount = 1;
+          }
+        }
       }
     }
+    console.log(pattern);
+    
   }
 
   generateDXF() {
-    /*
-    
-    const myBlock2 = dxf.addBlock('myBlock2');
-    myBlock2.setLayerName('r3000'); // Layer zuweisung
-    myBlock2.addLine(point3d(-100, 10, 0), point3d(0, 20, 0));
-
-    dxf.addInsert(myBlock2.name, point3d(0, 0, 0));
-   // dxf.addInsert(fieldA.name, point3d(0, 0, 0));
-   // dxf.addInsert(fieldA.name, point3d(0, -1000, 0));
-    dxf.addInsert(row.name, point3d(0, 0, 0));
-    dxf.addInsert(row.name, point3d(0, 1400, 0));
-    dxf.addInsert(row.name, point3d(0, 1830, 0));
-*/
+   
     this.createFieldBlock(this.fieldWidth, this.fieldDepth, 'A');
     this.createFieldBlock(this.frameWidth, this.fieldDepth, 'Rahmen');
     this.createRowBlock(this.amountFields, 'row');
