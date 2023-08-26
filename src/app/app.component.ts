@@ -49,7 +49,8 @@ export class AppComponent {
     this.dxf = new DxfWriter();
     this.dxf.setUnits(Units.Millimeters);
     //this.dxf.tables.addAppId('PE Configurator');
-    this.dxf.addLayer('r3000', Colors.Green, 'Continuous');
+    this.dxf.addLayer('SSI_Sysreg-AM_0', 82, 'Continuous');
+    this.dxf.addLayer('SSI_Sysreg-AM_2', 80, 'Continuous');
   }
 
   createFootplateBlock(name:string){
@@ -59,7 +60,19 @@ export class AppComponent {
     footplate.addArc(point3d(5,58,0),5,90,180);
     footplate.addArc(point3d(125,5,0),5,270,0);
     footplate.addArc(point3d(125,58,0),5,0,90);
-    
+    footplate.addLine(point3d(0,5,0),point3d(0,58,0));
+    footplate.addLine(point3d(5,0,0),point3d(125,0,0));
+    footplate.addLine(point3d(130,5,0),point3d(130,58,0));
+    footplate.addLine(point3d(5,63,0),point3d(125,63,0));
+    footplate.addCircle(point3d(15,31.5,0), 4.5);
+    footplate.addLine(point3d(5.75,31.5,0),point3d(24.25,31.5,0));
+    footplate.addLine(point3d(15,22.25,0),point3d(15,40.75,0));
+    footplate.addCircle(point3d(115,31.5,0), 4.5);
+    footplate.addLine(point3d(105.75,31.5,0),point3d(124.25,31.5,0));
+    footplate.addLine(point3d(115,22.25,0),point3d(115,40.75,0));
+
+    footplate.addLine(point3d(65,-2,0),point3d(65,65,0));
+
   }
 
   createFieldBlock(width: number, depth: number, name: string) {
@@ -84,6 +97,30 @@ export class AppComponent {
     field.addLWPolyline(vertices);
     field.setLayerName('r3000');
     return field;
+  }
+
+  createR3kFrameBlock(width: number, depth: number, name: string) {
+    const frame = this.dxf.addBlock(name);
+    const vertices = [
+      {
+        point: point2d(0, 0),
+      },
+      {
+        point: point2d(width, 0),
+      },
+      {
+        point: point2d(width, depth),
+      },
+      {
+        point: point2d(0, depth),
+      },
+      {
+        point: point2d(0, 0),
+      },
+    ];
+    frame.addLWPolyline(vertices);
+    frame.addInsert('footplate', point3d(-49.5,-1.5),{layerName: 'SSI_Sysreg-AM_2'});
+    frame.addInsert('footplate', point3d(-49.5,depth-61.5),{layerName: 'SSI_Sysreg-AM_2'});
   }
 
   createRowBlock(amountFields: number, name: string) {
@@ -137,16 +174,16 @@ export class AppComponent {
   generateDXF() {
    
     this.createFieldBlock(this.fieldWidth, this.fieldDepth, 'A');
-    this.createFieldBlock(this.frameWidth, this.fieldDepth, 'Rahmen');
+    this.createR3kFrameBlock(this.frameWidth, this.fieldDepth, 'Rahmen');
     this.createRowBlock(this.amountFields, 'row');
     this.createSystemBlock(this.amountRows, this.aisleWidth, 'system');
     this.createFootplateBlock('footplate');
 
     this.dxf.addInsert('system', point3d(0, 0, 0), {
       rotationAngle: this.rotationAngle,
-      layerName: 'r3000',
+      layerName: 'SSI_Sysreg-AM_0',
     });
-    this.dxf.addInsert('footplate', point3d(0, 0, 0))
+
 
     this.dxfString = this.dxf.stringify();
   }
