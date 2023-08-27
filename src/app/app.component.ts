@@ -30,6 +30,7 @@ export class AppComponent {
   aisleWidth: number = 1000;
   rowPattern: string = 'sdds';
   rowDistance: number = 6;
+  doors: boolean = false;
 
  
 
@@ -51,11 +52,12 @@ export class AppComponent {
     //this.dxf.tables.addAppId('PE Configurator');
     this.dxf.addLayer('SSI_Sysreg-AM_0', 82, 'Continuous');
     this.dxf.addLayer('SSI_Sysreg-AM_2', 80, 'Continuous');
+    this.dxf.addLayer('SSI_Extras-AM_1', 222, 'Continuous');
+    this.dxf.addLayer('whitelines', 7, 'Continuous');
   }
 
   createFootplateBlock(name:string){
     const footplate = this.dxf.addBlock(name)
-   
     footplate.addArc(point3d(5,5,0),5,180,270);
     footplate.addArc(point3d(5,58,0),5,90,180);
     footplate.addArc(point3d(125,5,0),5,270,0);
@@ -70,9 +72,7 @@ export class AppComponent {
     footplate.addCircle(point3d(115,31.5,0), 4.5);
     footplate.addLine(point3d(105.75,31.5,0),point3d(124.25,31.5,0));
     footplate.addLine(point3d(115,22.25,0),point3d(115,40.75,0));
-
     footplate.addLine(point3d(65,-2,0),point3d(65,65,0));
-
   }
 
   createFieldBlock(width: number, depth: number, name: string) {
@@ -95,8 +95,9 @@ export class AppComponent {
       },
     ];
     field.addLWPolyline(vertices);
-    field.setLayerName('r3000');
-    return field;
+    if(this.doors){
+      field.addInsert('accessoriesUp', point3d(0,0,0),{layerName: 'SSI_Extras-AM_1'});
+    }  
   }
 
   createR3kFrameBlock(width: number, depth: number, name: string) {
@@ -119,6 +120,16 @@ export class AppComponent {
       },
     ];
     frame.addLWPolyline(vertices);
+    frame.addLine(point3d(0,60,0),point3d(width,60,0));
+    frame.addLine(point3d(0,depth-60,0),point3d(width,depth-60,0));
+    frame.addLine(point3d(width/2,-6,0),point3d(width/2,6,0));
+    frame.addLine(point3d(width/2,depth-6,0),point3d(width/2,depth+6,0));
+    frame.addLine(point3d(-6,41,0),point3d(6,41,0));
+    frame.addLine(point3d(width-6,41,0),point3d(width+6,41,0));
+    frame.addLine(point3d(-6,depth-41,0),point3d(6,depth-41,0));
+    frame.addLine(point3d(width-6,depth-41,0),point3d(width+6,depth-41,0));
+    frame.addLine(point3d(-2,0,0),point3d(-2,depth,0),{layerName: 'whitelines'});
+    frame.addLine(point3d(width+2,0,0),point3d(width+2,depth,0),{layerName: 'whitelines'});
     frame.addInsert('footplate', point3d(-49.5,-1.5),{layerName: 'SSI_Sysreg-AM_2'});
     frame.addInsert('footplate', point3d(-49.5,depth-61.5),{layerName: 'SSI_Sysreg-AM_2'});
   }
@@ -137,6 +148,22 @@ export class AppComponent {
       );
     }
     return row;
+  }
+
+  createDoorsBlock(orientation: string, width: number, depth:number, name: string){
+    const doors = this.dxf.addBlock(name);
+    if(orientation == "down"){
+      doors.addLine(point3d(0,0,0),point3d(0,-(width/2),0));
+      doors.addLine(point3d(width,0,0),point3d(width,-(width/2),0));
+      doors.addArc(point3d(0,0,0),width/2,270,360);
+      doors.addArc(point3d(width,0,0),width/2,180,270);
+    }
+    if(orientation == "up"){
+      doors.addLine(point3d(0,depth,0),point3d(0,depth+(width/2),0));
+      doors.addLine(point3d(width,depth,0),point3d(width,depth+(width/2),0));
+      doors.addArc(point3d(0,depth,0),width/2,0,90);
+      doors.addArc(point3d(width,depth,0),width/2,90,180);
+    }
   }
 
   createSystemBlock(amountRows: number, aisleWidth: number, name: string) {
@@ -178,6 +205,8 @@ export class AppComponent {
     this.createRowBlock(this.amountFields, 'row');
     this.createSystemBlock(this.amountRows, this.aisleWidth, 'system');
     this.createFootplateBlock('footplate');
+    this.createDoorsBlock('down',this.fieldWidth, this.fieldDepth,'accessoriesDown');
+    this.createDoorsBlock('up',this.fieldWidth, this.fieldDepth,'accessoriesUp');
 
     this.dxf.addInsert('system', point3d(0, 0, 0), {
       rotationAngle: this.rotationAngle,
