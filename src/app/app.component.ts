@@ -31,6 +31,7 @@ export class AppComponent {
   rowPattern: string = 'sdds';
   rowDistance: number = 6;
   doors: boolean = false;
+  height: number = 2278;
 
  
 
@@ -51,6 +52,7 @@ export class AppComponent {
     this.dxf.setUnits(Units.Millimeters);
     //this.dxf.tables.addAppId('PE Configurator');
     this.dxf.addLayer('SSI_Sysreg-AM_0', 82, 'Continuous');
+    this.dxf.addLayer('SSI_Sysreg-AM_1', 83, 'Continuous');
     this.dxf.addLayer('SSI_Sysreg-AM_2', 80, 'Continuous');
     this.dxf.addLayer('SSI_Extras-AM_1', 222, 'Continuous');
     this.dxf.addLayer('whitelines', 7, 'Continuous');
@@ -195,7 +197,48 @@ export class AppComponent {
       }
     }
     console.log(pattern);
-    
+  }
+
+  createUprightBlock(height:number, name: string){
+    const upright = this.dxf.addBlock(name);
+    upright.addLine(point3d(0,2,0),point3d(0,height,0));
+    upright.addLine(point3d(11,2,0),point3d(11,height,0));
+    upright.addLine(point3d(20,2,0),point3d(20,height,0));
+    upright.addLine(point3d(31,2,0),point3d(31,height,0));
+    upright.addLine(point3d(-17,2,0),point3d(48,2,0));
+    upright.addLine(point3d(-17,2,0),point3d(-17,0,0));
+    upright.addLine(point3d(48,2,0),point3d(48,0,0));
+    upright.addLine(point3d(0,height,0),point3d(11,height,0));
+    upright.addLine(point3d(20,height,0),point3d(31,height,0));
+    let heightIterator = 9;
+    for(let i=0; i<=(height/53); i++){
+      upright.addLine(point3d(11,heightIterator,0),point3d(20,heightIterator,0));
+      upright.addLine(point3d(11,heightIterator+32,0),point3d(20,heightIterator+32,0));
+      upright.addCircle(point3d(15.5,heightIterator+16,0), 4.5);
+
+      upright.addLine(point3d(-1,heightIterator+14,0),point3d(0,heightIterator+14,0));
+      upright.addArc(point3d(-1,heightIterator+16,0),2,120,270);
+      upright.addLine(point3d(31,heightIterator+14,0),point3d(32,heightIterator+14,0));
+      upright.addArc(point3d(32,heightIterator+16,0),2,270,60);
+
+      upright.addLine(point3d(-1,heightIterator+15,0),point3d(0,heightIterator+15,0));
+      upright.addArc(point3d(-1,heightIterator+16,0),1,180,270);
+      upright.addLine(point3d(-2,heightIterator+16,0),point3d(-2,heightIterator+26,0));
+      
+      upright.addLine(point3d(31,heightIterator+15,0),point3d(32,heightIterator+15,0));
+      upright.addArc(point3d(32,heightIterator+16,0),1,270,360);
+      upright.addLine(point3d(33,heightIterator+16,0),point3d(33,heightIterator+26,0));
+      
+      upright.addLine(point3d(-0.5,heightIterator+16,0),point3d(0,heightIterator+16,0));
+      upright.addArc(point3d(-0.5,heightIterator+16.5,0),0.5,180,270);
+      upright.addLine(point3d(-1,heightIterator+16.5,0),point3d(-1,heightIterator+26,0));
+
+      upright.addLine(point3d(31,heightIterator+16,0),point3d(31.5,heightIterator+16,0));
+      upright.addArc(point3d(31.5,heightIterator+16.5,0),0.5,270,360);
+      upright.addLine(point3d(32,heightIterator+16.5,0),point3d(32,heightIterator+26,0));
+      
+      heightIterator = heightIterator + 53;
+    }
   }
 
   generateDXF() {
@@ -207,10 +250,15 @@ export class AppComponent {
     this.createFootplateBlock('footplate');
     this.createDoorsBlock('down',this.fieldWidth, this.fieldDepth,'accessoriesDown');
     this.createDoorsBlock('up',this.fieldWidth, this.fieldDepth,'accessoriesUp');
+    this.createUprightBlock(this.height,'upright');
 
     this.dxf.addInsert('system', point3d(0, 0, 0), {
       rotationAngle: this.rotationAngle,
       layerName: 'SSI_Sysreg-AM_0',
+    });
+
+    this.dxf.addInsert('upright', point3d(-2000, 0, 0), {
+      layerName: 'SSI_Sysreg-AM_1',
     });
 
 
